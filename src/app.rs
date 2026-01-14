@@ -12,7 +12,6 @@ use web_sys::{MouseEvent, console};
 use crate::app::http::{HttpClient, HttpMethod, HttpRequest, HttpResult};
 
 
-
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = ["window", "__TAURI__", "core"])]
@@ -24,34 +23,50 @@ struct User {
     name: String
 }
 
+struct State {
+    nome: Signal<String>,
+    email: Signal<String>,
+    dark_mode: Signal<bool>,
+    notifications: Signal<bool>,
+    volume: Signal<f64>,
+    brightness: Signal<f64>,
+    loading: Signal<bool>,
+    theme_option: Signal<usize>,
+    accept_terms: Signal<bool>,
+    bio: Signal<String>,
+}
+
 
 #[component]
 pub fn App() -> View {
     // --- ESTADO ---
-    let nome = create_signal(String::from("Maria Oliveira"));
-    let email = create_signal(String::from("maria@example.com"));
-    let dark_mode = create_signal(false);
-    let notifications = create_signal(true);
-    let volume = create_signal(75.0);
-    let brightness = create_signal(0.6);
-    let loading = create_signal(false);
-    let theme_option = create_signal(0);
-    let accept_terms = create_signal(false);
-    let bio = create_signal(
-        String::from("Desenvolvedora apaixonada por Rust e UI design.")
-    );
+
+    let state = State {
+        nome: create_signal(String::from("Maria Oliveira")),
+        email: create_signal(String::from("maria@example.com")),
+        dark_mode: create_signal(false),
+        notifications: create_signal(true),
+        volume: create_signal(75.0),
+        brightness: create_signal(0.6),
+        loading: create_signal(false),
+        theme_option: create_signal(0),
+        accept_terms: create_signal(false),
+        bio: create_signal(
+            String::from("Desenvolvedora apaixonada por Rust e UI design.")
+        )
+    };
 
     let save_action = move |_| {
-        loading.set(true);
-        console::log_1(&format!("Salvando configurações para: {}", nome.get_clone()).into());
+        state.loading.set(true);
+        console::log_1(&format!("Salvando configurações para: {}", state.nome.get_clone()).into());
         // Simular um delay
-        loading.set(false);
+        state.loading.set(false);
     };
 
 
     let export_action = move |_e: MouseEvent| {
 
-        async fn _export_action() -> HttpResult<()>  {
+        async fn make_request() -> HttpResult<()>  {
             console::log_1(&"Exportando configurações...".into());
 
             // 1. Requisição simples
@@ -84,7 +99,7 @@ pub fn App() -> View {
         }
 
         spawn_local_scoped(async move {
-            match _export_action().await {
+            match make_request().await {
                 Ok(_) => {
                     console::log_1(&"✅ Exportação concluída com sucesso!".into());
                 }
@@ -97,6 +112,7 @@ pub fn App() -> View {
 
     // --- DEFINIÇÃO DAS ABAS ---
     let tabs_config = vec![
+
         TabItem::new("Perfil", move || view! {
             VBox(spacing = 20) {
                 HBox(spacing = 12, align = Align::Between) {
@@ -124,7 +140,7 @@ pub fn App() -> View {
                                     kind = LabelKind::Body
                                 )
                                 TextField(
-                                    value = nome,
+                                    value = state.nome,
                                     placeholder = "Digite seu nome",
                                     grow = true
                                 )
@@ -135,7 +151,7 @@ pub fn App() -> View {
                                     kind = LabelKind::Body
                                 )
                                 TextField(
-                                    value = email,
+                                    value = state.email,
                                     placeholder = "seu@email.com",
                                     grow = true
                                 )
@@ -150,7 +166,7 @@ pub fn App() -> View {
                                 kind = LabelKind::Body
                             )
                             TextArea(
-                                value = bio,
+                                value = state.bio,
                                 placeholder = "Conte um pouco sobre você...",
                                 rows = 4
                             )
@@ -169,11 +185,11 @@ pub fn App() -> View {
                                     kind = LabelKind::Caption
                                 )
                             }
-                            Toggle(checked = notifications)
+                            Toggle(checked = state.notifications)
                         }
 
                         Checkbox(
-                            checked = accept_terms,
+                            checked = state.accept_terms,
                             label = "Aceito os termos de uso e política de privacidade"
                         )
                     }
@@ -217,6 +233,7 @@ pub fn App() -> View {
         }),
 
         TabItem::new("Aparência", move || view! {
+
             VBox(spacing = 20) {
                 Label(text = "Aparência e Tema".to_string(), kind = LabelKind::Header)
                 
@@ -228,7 +245,7 @@ pub fn App() -> View {
                                 kind = LabelKind::Body
                             )
                             RadioGroup(
-                                selected = theme_option,
+                                selected = state.theme_option,
                                 options = vec!["Claro", "Escuro", "Automático"]
                             )
                         }
@@ -248,7 +265,7 @@ pub fn App() -> View {
                                     kind = LabelKind::Caption
                                 )
                             }
-                            Toggle(checked = dark_mode)
+                            Toggle(checked = state.dark_mode)
                         }
 
                         Separator()
@@ -260,19 +277,19 @@ pub fn App() -> View {
                                     kind = LabelKind::Body
                                 )
                                 Label(
-                                    text = format!("{:.0}%", brightness.get() * 100.0),
+                                    text = format!("{:.0}%", state.brightness.get() * 100.0),
                                     kind = LabelKind::Caption
                                 )
                             }
                             Slider(
-                                value = brightness,
+                                value = state.brightness,
                                 min = 0.0,
                                 max = 1.0,
                                 grow = true,
                                 step = 0.01
                             )
                             ProgressBar(
-                                value = brightness,
+                                value = state.brightness,
                                 show_label = false,
                                 indeterminate = false
                             )
@@ -299,7 +316,6 @@ pub fn App() -> View {
         }),
 
         TabItem::new("Sistema", move || view! {
-            
 
             VBox(spacing = 20) {
                 Label(text = "Configurações do Sistema".to_string(), kind = LabelKind::Header)
@@ -313,18 +329,18 @@ pub fn App() -> View {
                                     kind = LabelKind::Body
                                 )
                                 Badge(
-                                    text = format!("{}%", volume.get() as u8),
+                                    text = format!("{}%", state.volume.get() as u8),
                                     kind = BadgeKind::Info
                                 )
                             }
                             HBox(spacing = 12, align = Align::Center) {
-                                Label(text = "🔈".to_string())
+                                // Label(text = "🔈".to_string())
                                 Slider(
-                                    value = volume,
+                                    value = state.volume,
                                     min = 0.0, max = 100.0,
                                     grow = true, step = 1.0
                                 )
-                                Label(text = "🔊".to_string())
+                                // Label(text = "🔊".to_string())
                             }
                         }
 
@@ -339,7 +355,7 @@ pub fn App() -> View {
                             Card(class = "elevation-1") {
                                 HBox(spacing = 12, align = Align::Between) {
                                     HBox(spacing = 12) {
-                                        Label(text = "🎧".to_string())
+                                        // Label(text = "🎧".to_string())
                                         VBox(spacing = 2, align = Align::Start) {
                                             Label(
                                                 text = "Fones Bluetooth".to_string(),
@@ -361,7 +377,7 @@ pub fn App() -> View {
                             Card(class = "elevation-1") {
                                 HBox(spacing = 12, align = Align::Between) {
                                     HBox(spacing = 12) {
-                                        Label(text = "🖨️".to_string())
+                                        // Label(text = "🖨️".to_string())
                                         VBox(spacing = 2, align = Align::Start) {
                                             Label(
                                                 text = "Impressora HP".to_string(),
@@ -454,16 +470,14 @@ pub fn App() -> View {
                             Button(
                                 text = "Exportar Logs",
                                 kind = ButtonKind::Secondary,
-                                on_click = Box::new(export_action),
-                                icon = "📄"
+                                on_click = Box::new(export_action)
                             )
                             Button(
                                 text = "Limpar Cache",
                                 kind = ButtonKind::Ghost,
                                 on_click = Box::new(
                                     move |_| console::log_1(&"Limpando cache...".into())
-                                ),
-                                icon = "🗑️"
+                                )
                             )
                         }
 
@@ -485,14 +499,13 @@ pub fn App() -> View {
                                 kind = ButtonKind::Destructive,
                                 on_click = Box::new(
                                     move |_| console::log_1(&"Resetando...".into())
-                                ),
-                                icon = "⚠️"
+                                )
                             )
                         }
                     }
                 }
 
-                (if loading.get() {
+                (if state.loading.get() {
                     view! {
                         Card() {
                             HBox(spacing = 12, align = Align::Center) {
@@ -564,7 +577,7 @@ pub fn App() -> View {
                             )
                         }
                         HBox(spacing = 12) {
-                            (if loading.get() {
+                            (if state.loading.get() {
                                 view! {
                                     HBox(spacing = 8) {
                                         Spinner(size = 12)
@@ -611,7 +624,6 @@ pub fn App() -> View {
                         text = "Salvar Alterações",
                         kind = ButtonKind::Primary,
                         on_click = Box::new(save_action),
-                        icon = "💾"
                     )
                 }
             }

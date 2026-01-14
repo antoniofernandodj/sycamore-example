@@ -90,7 +90,12 @@ pub fn VBox(props: BoxProps) -> View {
     view! {
         div(
             class=format!("vbox {}", props.class),
-            style=format!("gap: {}px; align-items: {}; {}", props.spacing, props.align.to_css(), props.style)
+            style=format!(
+                "gap: {}px; align-items: {}; {}",
+                props.spacing,
+                props.align.to_css(),
+                props.style
+            )
         ) { (children) }
     }
 }
@@ -362,8 +367,6 @@ pub struct ButtonProps {
     pub on_click: Box<dyn Fn(MouseEvent)>,
     #[prop(default)]
     pub disabled: bool,
-    #[prop(default)]
-    pub icon: &'static str,
 }
 
 #[component]
@@ -382,9 +385,6 @@ pub fn Button(props: ButtonProps) -> View {
             on:click=props.on_click,
             disabled=props.disabled
         ) {
-            (if !props.icon.is_empty() {
-                view! { span(class="btn-icon") { (props.icon) } }
-            } else { view! {} })
             (props.text)
         }
     }
