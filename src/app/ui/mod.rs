@@ -60,7 +60,7 @@ pub fn Window(props: WindowProps) -> View {
         ) {
             div(class="window-titlebar") {
                 div(class="window-title") { (props.title) }
-                div(class="window-controls hbox") {
+                div(class="window-controls row") {
                     button(class="win-btn min", title="Minimizar") {}
                     button(class="win-btn max", title="Maximizar") {}
                     button(class="win-btn close", title="Fechar") {}
@@ -85,11 +85,11 @@ pub struct BoxProps {
 }
 
 #[component]
-pub fn VBox(props: BoxProps) -> View {
+pub fn Column(props: BoxProps) -> View {
     let children = props.children.call();
     view! {
         div(
-            class=format!("vbox {}", props.class),
+            class=format!("column {}", props.class),
             style=format!(
                 "gap: {}px; align-items: {}; {}",
                 props.spacing,
@@ -101,14 +101,14 @@ pub fn VBox(props: BoxProps) -> View {
 }
 
 #[component]
-pub fn HBox(props: BoxProps) -> View {
+pub fn Row(props: BoxProps) -> View {
     let children = props.children.call();
     let justify = if matches!(props.align, Align::Between) { "justify-content: space-between;" } else { "" };
     let align_items = if matches!(props.align, Align::Between) { "center" } else { props.align.to_css() };
 
     view! {
         div(
-            class=format!("hbox {}", props.class),
+            class=format!("row {}", props.class),
             style=format!("gap: {}px; align-items: {}; {} {}", props.spacing, align_items, justify, props.style)
         ) { (children) }
     }
@@ -189,7 +189,7 @@ pub fn Panel(props: PanelProps) -> View {
     view! {
         div(class="ui-panel") {
             div(class="panel-header", on:click=toggle) {
-                HBox(spacing=8, align=Align::Between) {
+                Row(spacing=8, align=Align::Between) {
                     Label(text=props.title.to_string(), kind=LabelKind::Title)
                     (if props.collapsible {
                         view! {
@@ -239,7 +239,7 @@ pub fn TabView(props: TabViewProps) -> View {
     let headers_signal = create_signal(headers);
 
     view! {
-        div(class="vbox", style="width: 100%; height: 100%;") {
+        div(class="column", style="width: 100%; height: 100%;") {
             div(class="tab-header") {
                 Indexed(
                     list=headers_signal,
@@ -558,10 +558,10 @@ pub fn ProgressBar(props: ProgressBarProps) -> View {
     let track_class = if props.indeterminate { "progress-track indeterminate" } else { "progress-track" };
     
     view! {
-        div(class="vbox", style="gap: 4px; width: 100%") {
+        div(class="column", style="gap: 4px; width: 100%") {
             (if props.show_label {
                 view! {
-                    div(class="hbox", style="justify-content: space-between") {
+                    div(class="row", style="justify-content: space-between") {
                         span(class="ui-label caption") { "Progresso" }
                         span(class="ui-label caption") { (format!("{:.0}%", props.value.get() * 100.0)) }
                     }

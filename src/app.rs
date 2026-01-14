@@ -114,8 +114,8 @@ pub fn App() -> View {
     let tabs_config = vec![
 
         TabItem::new("Perfil", move || view! {
-            VBox(spacing = 20) {
-                HBox(spacing = 12, align = Align::Between) {
+            Column(spacing = 20) {
+                Row(spacing = 12, align = Align::Between) {
                     Label(
                         text = "Informações do Perfil".to_string(),
                         kind = LabelKind::Header
@@ -132,9 +132,9 @@ pub fn App() -> View {
                 )
 
                 Card(elevated = true) {
-                    VBox(spacing = 20) {
+                    Column(spacing = 20) {
                         Grid(columns = 2, gap = 16) {
-                            VBox(spacing = 8) {
+                            Column(spacing = 8) {
                                 Label(
                                     text = "Nome Completo".to_string(),
                                     kind = LabelKind::Body
@@ -145,7 +145,7 @@ pub fn App() -> View {
                                     grow = true
                                 )
                             }
-                            VBox(spacing = 8) {
+                            Column(spacing = 8) {
                                 Label(
                                     text = "E-mail".to_string(),
                                     kind = LabelKind::Body
@@ -160,7 +160,7 @@ pub fn App() -> View {
 
                         Separator()
 
-                        VBox(spacing = 8) {
+                        Column(spacing = 8) {
                             Label(
                                 text = "Biografia".to_string(),
                                 kind = LabelKind::Body
@@ -174,8 +174,8 @@ pub fn App() -> View {
 
                         Separator()
 
-                        HBox(spacing = 12, align = Align::Between) {
-                            VBox(spacing = 4, align = Align::Start) {
+                        Row(spacing = 12, align = Align::Between) {
+                            Column(spacing = 4, align = Align::Start) {
                                 Label(
                                     text = "Notificações Desktop".to_string(),
                                     kind = LabelKind::Body
@@ -196,8 +196,8 @@ pub fn App() -> View {
                 }
 
                 Panel(title = "Informações da Conta", collapsible = true) {
-                    VBox(spacing = 12) {
-                        HBox(spacing = 8, align = Align::Between) {
+                    Column(spacing = 12) {
+                        Row(spacing = 8, align = Align::Between) {
                             Label(
                                 text = "ID da Conta:".to_string(),
                                 kind = LabelKind::Body
@@ -207,7 +207,7 @@ pub fn App() -> View {
                                 kind = LabelKind::Monospace
                             )
                         }
-                        HBox(spacing = 8, align = Align::Between) {
+                        Row(spacing = 8, align = Align::Between) {
                             Label(
                                 text = "Membro desde:".to_string(),
                                 kind = LabelKind::Body
@@ -217,7 +217,7 @@ pub fn App() -> View {
                                 kind = LabelKind::Caption
                             )
                         }
-                        HBox(spacing = 8, align = Align::Between) {
+                        Row(spacing = 8, align = Align::Between) {
                             Label(
                                 text = "Status:".to_string(),
                                 kind = LabelKind::Body
@@ -234,12 +234,12 @@ pub fn App() -> View {
 
         TabItem::new("Aparência", move || view! {
 
-            VBox(spacing = 20) {
+            Column(spacing = 20) {
                 Label(text = "Aparência e Tema".to_string(), kind = LabelKind::Header)
                 
                 Card() {
-                    VBox(spacing = 20) {
-                        VBox(spacing = 12) {
+                    Column(spacing = 20) {
+                        Column(spacing = 12) {
                             Label(
                                 text = "Tema do Sistema".to_string(),
                                 kind = LabelKind::Body
@@ -252,8 +252,8 @@ pub fn App() -> View {
 
                         Divider(text = "Personalização")
 
-                        HBox(align = Align::Between) {
-                            VBox(spacing = 4, align = Align::Start) {
+                        Row(align = Align::Between) {
+                            Column(spacing = 4, align = Align::Start) {
                                 Label(
                                     text = "Modo Escuro".to_string(),
                                     kind = LabelKind::Body
@@ -270,8 +270,8 @@ pub fn App() -> View {
 
                         Separator()
 
-                        VBox(spacing = 12) {
-                            HBox(align = Align::Between) {
+                        Column(spacing = 12) {
+                            Row(align = Align::Between) {
                                 Label(
                                     text = "Brilho da Tela".to_string(),
                                     kind = LabelKind::Body
@@ -298,8 +298,8 @@ pub fn App() -> View {
                 }
 
                 Card(interactive = true) {
-                    HBox(spacing = 12, align = Align::Between) {
-                        VBox(spacing = 4, align = Align::Start) {
+                    Row(spacing = 12, align = Align::Between) {
+                        Column(spacing = 4, align = Align::Start) {
                             Label(
                                 text = "Gerenciador de Cores".to_string(),
                                 kind = LabelKind::Body
@@ -317,13 +317,13 @@ pub fn App() -> View {
 
         TabItem::new("Sistema", move || view! {
 
-            VBox(spacing = 20) {
+            Column(spacing = 20) {
                 Label(text = "Configurações do Sistema".to_string(), kind = LabelKind::Header)
                 
                 Card() {
-                    VBox(spacing = 20) {
-                        VBox(spacing = 12) {
-                            HBox(spacing = 8, align = Align::Between) {
+                    Column(spacing = 20) {
+                        Column(spacing = 12) {
+                            Row(spacing = 8, align = Align::Between) {
                                 Label(
                                     text = "Volume de Saída".to_string(),
                                     kind = LabelKind::Body
@@ -333,7 +333,7 @@ pub fn App() -> View {
                                     kind = BadgeKind::Info
                                 )
                             }
-                            HBox(spacing = 12, align = Align::Center) {
+                            Row(spacing = 12, align = Align::Center) {
                                 // Label(text = "🔈".to_string())
                                 Slider(
                                     value = state.volume,
@@ -346,17 +346,17 @@ pub fn App() -> View {
 
                         Divider(text = "Dispositivos")
 
-                        VBox(spacing = 12) {
+                        Column(spacing = 12) {
                             Label(
                                 text = "Dispositivos Conectados".to_string(),
                                 kind = LabelKind::Body
                             )
                             
                             Card(class = "elevation-1") {
-                                HBox(spacing = 12, align = Align::Between) {
-                                    HBox(spacing = 12) {
+                                Row(spacing = 12, align = Align::Between) {
+                                    Row(spacing = 12) {
                                         // Label(text = "🎧".to_string())
-                                        VBox(spacing = 2, align = Align::Start) {
+                                        Column(spacing = 2, align = Align::Start) {
                                             Label(
                                                 text = "Fones Bluetooth".to_string(),
                                                 kind = LabelKind::Body
@@ -375,10 +375,10 @@ pub fn App() -> View {
                             }
 
                             Card(class = "elevation-1") {
-                                HBox(spacing = 12, align = Align::Between) {
-                                    HBox(spacing = 12) {
+                                Row(spacing = 12, align = Align::Between) {
+                                    Row(spacing = 12) {
                                         // Label(text = "🖨️".to_string())
-                                        VBox(spacing = 2, align = Align::Start) {
+                                        Column(spacing = 2, align = Align::Start) {
                                             Label(
                                                 text = "Impressora HP".to_string(),
                                                 kind = LabelKind::Body
@@ -401,7 +401,7 @@ pub fn App() -> View {
 
                 Panel(title = "Informações do Sistema", collapsible = true) {
                     Grid(columns = 2, gap = 12) {
-                        VBox(spacing = 4) {
+                        Column(spacing = 4) {
                             Label(
                                 text = "Sistema Operacional".to_string(),
                                 kind = LabelKind::Caption
@@ -411,7 +411,7 @@ pub fn App() -> View {
                                 kind = LabelKind::Body
                             )
                         }
-                        VBox(spacing = 4) {
+                        Column(spacing = 4) {
                             Label(
                                 text = "Processador".to_string(),
                                 kind = LabelKind::Caption
@@ -421,7 +421,7 @@ pub fn App() -> View {
                                 kind = LabelKind::Body
                             )
                         }
-                        VBox(spacing = 4) {
+                        Column(spacing = 4) {
                             Label(
                                 text = "Memória RAM".to_string(),
                                 kind = LabelKind::Caption
@@ -431,7 +431,7 @@ pub fn App() -> View {
                                 kind = LabelKind::Body
                             )
                         }
-                        VBox(spacing = 4) {
+                        Column(spacing = 4) {
                             Label(
                                 text = "Armazenamento".to_string(),
                                 kind = LabelKind::Caption
@@ -447,8 +447,8 @@ pub fn App() -> View {
         }),
 
         TabItem::new("Avançado", move || view! {
-            VBox(spacing = 20) {
-                HBox(spacing = 12, align = Align::Between) {
+            Column(spacing = 20) {
+                Row(spacing = 12, align = Align::Between) {
                     Label(
                         text = "Configurações Avançadas".to_string(),
                         kind = LabelKind::Header
@@ -460,13 +460,13 @@ pub fn App() -> View {
                 }
 
                 Card() {
-                    VBox(spacing = 16) {
+                    Column(spacing = 16) {
                         Label(
                             text = "Ferramentas de Desenvolvedor".to_string(),
                             kind = LabelKind::Body
                         )
                         
-                        HBox(spacing = 8) {
+                        Row(spacing = 8) {
                             Button(
                                 text = "Exportar Logs",
                                 kind = ButtonKind::Secondary,
@@ -483,7 +483,7 @@ pub fn App() -> View {
 
                         Separator()
 
-                        VBox(spacing = 12) {
+                        Column(spacing = 12) {
                             Label(
                                 text = "Zona de Perigo".to_string(),
                                 kind = LabelKind::Body
@@ -504,20 +504,24 @@ pub fn App() -> View {
                         }
                     }
                 }
-
-                (if state.loading.get() {
-                    view! {
-                        Card() {
-                            HBox(spacing = 12, align = Align::Center) {
-                                Spinner(size = 20)
-                                Label(
-                                    text = "Processando...".to_string(),
-                                    kind = LabelKind::Body
-                                )
+                (
+                    if_else(
+                        state.loading, ||
+                        view! {
+                            Card() {
+                                Row(spacing = 12, align = Align::Center) {
+                                    Spinner(size = 20)
+                                    Label(
+                                        text = "Processando...".to_string(),
+                                        kind = LabelKind::Body
+                                    )
+                                }
                             }
-                        }
-                    }
-                } else { view! {} })
+                        }, ||
+                        view! {}
+                    )
+                )
+
             }
         }),
     ];
@@ -528,9 +532,9 @@ pub fn App() -> View {
             title = "Preferências do Sistema", size = (900, 650),
             resizable = false
         ) {
-            VBox(spacing = 0, align = Align::Stretch, class = "h-full") {
+            Column(spacing = 0, align = Align::Stretch, class = "h-full") {
                 Toolbar() {
-                    HBox(spacing = 8) {
+                    Row(spacing = 8) {
                         IconButton(
                             icon_src="/public/icons/edit.svg",
                             alt_text="Editar",
@@ -557,12 +561,12 @@ pub fn App() -> View {
                 TabView(tabs = tabs_config)
 
                 StatusBar() {
-                    HBox(
+                    Row(
                         spacing = 16,
                         align = Align::Between,
                         style = "width: 100%;"
                     ) {
-                        HBox(spacing = 8) {
+                        Row(spacing = 8) {
                             Label(
                                 text = "v1.2.4".to_string(),
                                 kind = LabelKind::Caption
@@ -576,32 +580,37 @@ pub fn App() -> View {
                                 kind = LabelKind::Caption
                             )
                         }
-                        HBox(spacing = 12) {
-                            (if state.loading.get() {
-                                view! {
-                                    HBox(spacing = 8) {
-                                        Spinner(size = 12)
+
+
+
+                        Row(spacing = 12) {
+                            (
+                                if_else(
+                                    state.loading, ||
+                                    view! {
+                                        Row(spacing = 8) {
+                                            Spinner(size = 12)
+                                            Label(
+                                                text = "Salvando...".to_string(),
+                                                kind = LabelKind::Caption
+                                            )
+                                        }
+                                    }, ||
+                                    view! {
                                         Label(
-                                            text = "Salvando...".to_string(),
+                                            text = "✓ Pronto".to_string(),
                                             kind = LabelKind::Caption
                                         )
                                     }
-                                }
-                            } else {
-                                view! {
-                                    Label(
-                                        text = "✓ Pronto".to_string(),
-                                        kind = LabelKind::Caption
-                                    )
-                                }
-                            })
+                                )
+                            )
                         }
                     }
                 }
 
                 Separator()
 
-                HBox(
+                Row(
                     spacing = 12,
                     align = Align::End,
                     style = "padding: 16px; background: var(--bg-surface);"
@@ -628,5 +637,18 @@ pub fn App() -> View {
                 }
             }
         }
+    }
+}
+
+
+fn if_else<F1, F2>(signal_cond: Signal<bool>, then_view: F1, else_view: F2) -> View
+where
+    F1: FnOnce() -> View,
+    F2: FnOnce() -> View,
+{
+    if signal_cond.get() {
+        then_view()
+    } else {
+        else_view()
     }
 }
