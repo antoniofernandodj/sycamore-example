@@ -1,11 +1,11 @@
-use std::rc::Rc;
+mod qt;  // Declarar o módulo
+use qt::*;  // Importar tudo
 
+use std::rc::Rc;
 use sycamore::prelude::*;
 use wasm_bindgen::prelude::*;
 use web_sys::MouseEvent;
-
 use wasm_bindgen::JsCast;
-
 use web_sys::{Event, HtmlInputElement};
 
 
@@ -16,298 +16,395 @@ extern "C" {
 }
 
 
+
 #[component]
 pub fn App() -> View {
-    let text = create_signal(String::new());
-    let label_text = create_signal(String::from("Nome:"));
+    // Signals para os widgets
+    let name = create_signal(String::new());
+    let email = create_signal(String::new());
+    let age = create_signal(18);
+    let height = create_signal(1.75);
+    let weight = create_signal(70.0);
+    
+    let radio1 = create_signal(true);
+    let radio2 = create_signal(false);
+    let radio3 = create_signal(false);
+    
+    let combo_index = create_signal(0);
+    let status_text = create_signal(String::from("Pronto"));
 
-    let text_for_lineedit = text.clone();
-    let text_for_button = text.clone();
-    let label_for_button = label_text.clone();
+    let combo_items = vec![
+        "Bronze".to_string(),
+        "Prata".to_string(),
+        "Ouro".to_string(),
+        "Platina".to_string(),
+    ];
 
-    view! {
-
-            RLabel(
-                text = label_text.clone(),
-                for_id = "name".to_string()
-            )
-
-            LineEdit(
-                value = text_for_lineedit,
-                placeholder = "Digite algo...".to_string(),
-                on_input = Rc::new({
-                    move |v| {
-                        text_for_lineedit.set(v);
-                    }
-                })
-            )
-
-            br {}
-
-            PushButton(
-                text = "OK".to_string(),
-                on_click = Rc::new(move |_| {
-                    label_for_button.set(text_for_button.get_clone());
-                })
-            )
-
-    }
-}
-
-
-
-
-#[derive(Props)]
-pub struct ButtonProps {
-    pub text: String,
-    #[prop(default)]
-    pub disabled: bool,
-    pub on_click: Rc<dyn Fn(MouseEvent)>,
-}
-
-#[component]
-pub fn PushButton(props: ButtonProps) -> View {
-    let is_hover = create_signal(false);
-    let is_pressed = create_signal(false);
-
-    let base_style = r#"
-        background: linear-gradient(to bottom, #f6f6f6, #dcdcdc);
-        border: 1px solid #8f8f8f;
-        border-radius: 4px;
-        padding: 6px 14px;
-        min-height: 28px;
-
-        font-family: 'Segoe UI', 'DejaVu Sans', Arial, sans-serif;
-        font-size: 13px;
-        color: #000000;
-
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
-        cursor: pointer;
-        outline: none;
-        user-select: none;
-    "#.to_string();
-
-    let hover_style = base_style.clone() + r#"
-        background: linear-gradient(to bottom, #ffffff, #e6e6e6);
-        border: 1px solid #5a8dee;
-    "#;
-
-    let pressed_style = base_style.clone() + r#"
-        background: linear-gradient(to bottom, #d6d6d6, #f0f0f0);
-        border: 1px solid #5a8dee;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
-    "#;
-
-    let disabled_style = base_style.clone() + r#"
-        background: #efefef;
-        border: 1px solid #bfbfbf;
-        color: #7f7f7f;
-        cursor: default;
-        box-shadow: none;
-    "#;
-
-    let on_click = props.on_click.clone();
-
+    let texto = create_signal(String::new());
 
     view! {
-        button(
-            disabled = props.disabled,
-            style = move || {
-                if props.disabled {
-                    disabled_style.clone()
-                } else if is_pressed.get() {
-                    pressed_style.clone()
-                } else if is_hover.get() {
-                    hover_style.clone()
-                } else {
-                    base_style.clone()
-                }
-            },
-            on:mouseenter = move |_| is_hover.set(true),
-            on:mouseleave = move |_| {
-                is_hover.set(false);
-                is_pressed.set(false);
-            },
-            on:mousedown = move |_| is_pressed.set(true),
-            on:mouseup = move |_| is_pressed.set(false),
-            on:click = move |e| {
-                if !props.disabled {
-                    (on_click)(e);
-                }
+
+        VBoxLayout {
+
+            HBoxLayout(spacing = 5, margin = 5) {
+                TextEdit(
+                    value = texto.clone(),
+                    placeholder = "Digite seu texto aqui...".to_string(),
+                    height = 150,
+                    line_wrap = true,
+                    readonly = false,
+                    on_change = Rc::new(|novo_texto| {
+                        // Faça algo quando o texto mudar
+                        web_sys::console::log_1(&format!("Texto alterado: {}", novo_texto).into());
+                    })
+                )
             }
-        ) {
-            (props.text)
         }
-    }
-}
 
 
-
-
-#[derive(Props)]
-pub struct LineEditProps {
-    #[prop(default)]
-    pub value: Signal<String>,
-
-    #[prop(default)]
-    pub placeholder: String,
-
-    #[prop(default)]
-    pub disabled: bool,
-
-    pub on_input: Rc<dyn Fn(String)>,
-}
-
-#[component]
-pub fn LineEdit(props: LineEditProps) -> View {
-    let is_hover = create_signal(false);
-    let is_focus = create_signal(false);
-
-    let base_style = r#"
-        box-sizing: border-box;
-        height: 26px;
-        padding: 4px 6px;
-
-        background: #ffffff;
-        border: 1px solid #8f8f8f;
-        border-radius: 3px;
-
-        font-family: 'Segoe UI', 'DejaVu Sans', Arial, sans-serif;
-        font-size: 13px;
-        color: #000000;
-
-        outline: none;
-    "#.to_string();
-
-    let hover_style = base_style.clone() + r#"
-        border-color: #5a8dee;
-    "#;
-
-    let focus_style = base_style.clone() + r#"
-        border-color: #377af5;
-        box-shadow: inset 0 0 0 1px rgba(55,122,245,0.6);
-    "#;
-
-    let disabled_style = base_style.clone() + r#"
-        background: #efefef;
-        color: #7f7f7f;
-        border-color: #bfbfbf;
-    "#;
-
-    let on_input = props.on_input.clone();
-
-
-
-    view! {
-        input(
-            r#type = "text",
-            value = props.value,
-            placeholder = props.placeholder,
-            disabled = props.disabled,
-
-            style = move || {
-                if props.disabled {
-                    disabled_style.clone()
-                } else if is_focus.get() {
-                    focus_style.clone()
-                } else if is_hover.get() {
-                    hover_style.clone()
-                } else {
-                    base_style.clone()
-                }
-            },
-
-            on:mouseenter = move |_| is_hover.set(true),
-            on:mouseleave = move |_| is_hover.set(false),
-            on:focus = move |_| is_focus.set(true),
-            on:blur = move |_| is_focus.set(false),
-
-            on:input = move |e: Event| {
-                let input = e
-                    .target()
-                    .unwrap()
-                    .dyn_into::<HtmlInputElement>()
-                    .unwrap();
-
-                let value = input.value();
-                (on_input)(value);
-            }
+        Slider(
+            value = create_signal(50),
+            min = 0,
+            max = 100,
+            step = 1,
+            show_value = true,
+            on_change = Rc::new(|v| {
+                // Fazer algo com o valor
+            })
         )
-    }
-}
-
-#[derive(Props)]
-pub struct RLabelProps {
-    pub text: Signal<String>,
-
-    #[prop(default)]
-    pub disabled: bool,
-
-    #[prop(default)]
-    pub for_id: String,
-}
-
-
-#[component]
-pub fn RLabel(props: RLabelProps) -> View {
-    let base_style = r#"
-        display: inline-block;
-        margin-right: 6px;
-
-        font-family: 'Segoe UI', 'DejaVu Sans', Arial, sans-serif;
-        font-size: 13px;
-        color: #000000;
-
-        user-select: none;
-    "#.to_string();
-
-    let disabled_style = base_style.clone() + r#"
-        color: #7f7f7f;
-    "#;
-
-    let for_attr: Option<String> =
-        if props.for_id.is_empty() {
-            None
-        } else {
-            Some(props.for_id.clone())
-        };
-
-    view! {
-        label(
-            r#for = for_attr,
-            style = if props.disabled {
-                disabled_style
-            } else {
-                base_style
+    
+        // // Vertical
+        // Slider(
+        //     value = create_signal(75),
+        //     min = 0,
+        //     max = 100,
+        //     step = 5,
+        //     orientation = Orientation::Vertical,
+        //     on_change = Rc::new(|v| {
+        //         // Callback
+        //     })
+        // )
+            
+        div(style = "padding: 20px; font-family: 'Segoe UI', Arial, sans-serif;") {
+            h1(style = "color: #333; margin-bottom: 20px;") { "Demo Qt Widgets em Sycamore" }
+            
+            // Seção 1: FormLayout
+            VBoxLayout(spacing = 20, margin = 10) {
+                
+                // Formulário com FormLayout
+                div(style = "border: 1px solid #ccc; padding: 15px; border-radius: 5px; background: #f9f9f9;") {
+                    h2(style = "margin-top: 0; color: #555;") { "Formulário de Cadastro" }
+                    
+                    FormLayout(spacing = 10, margin = 10, label_spacing = 15) {
+                        FormRow(label = "Nome:".to_string()) {
+                            LineEdit(
+                                value = name.clone(),
+                                placeholder = "Digite seu nome completo".to_string(),
+                                on_input = Rc::new({
+                                    let name = name.clone();
+                                    move |v| name.set(v)
+                                })
+                            )
+                        }
+                        
+                        FormRow(label = "E-mail:".to_string()) {
+                            LineEdit(
+                                value = email.clone(),
+                                placeholder = "seu@email.com".to_string(),
+                                on_input = Rc::new({
+                                    let email = email.clone();
+                                    move |v| email.set(v)
+                                })
+                            )
+                        }
+                        
+                        FormRow(label = "Idade:".to_string()) {
+                            SpinBox(
+                                value = age.clone(),
+                                min = 0,
+                                max = 120,
+                                step = 1,
+                                on_change = Rc::new({
+                                    let age = age.clone();
+                                    move |v| age.set(v)
+                                })
+                            )
+                        }
+                        
+                        FormRow(label = "Altura (m):".to_string()) {
+                            DoubleSpinBox(
+                                value = height.clone(),
+                                min = 0.5,
+                                max = 2.5,
+                                step = 0.01,
+                                decimals = 2,
+                                on_change = Rc::new({
+                                    let height = height.clone();
+                                    move |v| height.set(v)
+                                })
+                            )
+                        }
+                        
+                        FormRow(label = "Peso (kg):".to_string()) {
+                            DoubleSpinBox(
+                                value = weight.clone(),
+                                min = 30.0,
+                                max = 200.0,
+                                step = 0.5,
+                                decimals = 1,
+                                on_change = Rc::new({
+                                    let weight = weight.clone();
+                                    move |v| weight.set(v)
+                                })
+                            )
+                        }
+                        
+                        FormRow(label = "Categoria:".to_string()) {
+                            // ComboBox(
+                            //     items = combo_items,
+                            //     current_index = combo_index.clone(),
+                            //     on_change = Rc::new({
+                            //         let combo_index = combo_index.clone();
+                            //         move |idx, _value| combo_index.set(idx)
+                            //     })
+                            // )
+                        }
+                    }
+                }
+                
+                // Seção 2: RadioButtons em VBox
+                div(style = "border: 1px solid #ccc; padding: 15px; border-radius: 5px; background: #f9f9f9;") {
+                    h2(style = "margin-top: 0; color: #555;") { "Escolha uma opção" }
+                    
+                    VBoxLayout(spacing = 8, margin = 5) {
+                        RadioButton(
+                            text = "Opção 1 - Iniciante".to_string(),
+                            name = "nivel".to_string(),
+                            checked = radio1.clone(),
+                            on_toggle = Rc::new({
+                                let radio1 = radio1.clone();
+                                let radio2 = radio2.clone();
+                                let radio3 = radio3.clone();
+                                move |v| {
+                                    if v {
+                                        radio1.set(true);
+                                        radio2.set(false);
+                                        radio3.set(false);
+                                    }
+                                }
+                            })
+                        )
+                        
+                        RadioButton(
+                            text = "Opção 2 - Intermediário".to_string(),
+                            name = "nivel".to_string(),
+                            checked = radio2.clone(),
+                            on_toggle = Rc::new({
+                                let radio1 = radio1.clone();
+                                let radio2 = radio2.clone();
+                                let radio3 = radio3.clone();
+                                move |v| {
+                                    if v {
+                                        radio1.set(false);
+                                        radio2.set(true);
+                                        radio3.set(false);
+                                    }
+                                }
+                            })
+                        )
+                        
+                        RadioButton(
+                            text = "Opção 3 - Avançado".to_string(),
+                            name = "nivel".to_string(),
+                            checked = radio3.clone(),
+                            on_toggle = Rc::new({
+                                let radio1 = radio1.clone();
+                                let radio2 = radio2.clone();
+                                let radio3 = radio3.clone();
+                                move |v| {
+                                    if v {
+                                        radio1.set(false);
+                                        radio2.set(false);
+                                        radio3.set(true);
+                                    }
+                                }
+                            })
+                        )
+                    }
+                }
+                
+                // Seção 3: GridLayout com botões
+                div(style = "border: 1px solid #ccc; padding: 15px; border-radius: 5px; background: #f9f9f9;") {
+                    h2(style = "margin-top: 0; color: #555;") { "Grid de Ações" }
+                    
+                    GridLayout(columns = 3, spacing = 8, margin = 5) {
+                        PushButton(
+                            text = "Ação 1".to_string(),
+                            on_click = Rc::new({
+                                let status_text = status_text.clone();
+                                move |_| status_text.set("Ação 1 executada!".to_string())
+                            })
+                        )
+                        
+                        PushButton(
+                            text = "Ação 2".to_string(),
+                            on_click = Rc::new({
+                                let status_text = status_text.clone();
+                                move |_| status_text.set("Ação 2 executada!".to_string())
+                            })
+                        )
+                        
+                        PushButton(
+                            text = "Ação 3".to_string(),
+                            on_click = Rc::new({
+                                let status_text = status_text.clone();
+                                move |_| status_text.set("Ação 3 executada!".to_string())
+                            })
+                        )
+                        
+                        PushButton(
+                            text = "Ação 4".to_string(),
+                            on_click = Rc::new({
+                                let status_text = status_text.clone();
+                                move |_| status_text.set("Ação 4 executada!".to_string())
+                            })
+                        )
+                        
+                        PushButton(
+                            text = "Ação 5".to_string(),
+                            on_click = Rc::new({
+                                let status_text = status_text.clone();
+                                move |_| status_text.set("Ação 5 executada!".to_string())
+                            })
+                        )
+                        
+                        PushButton(
+                            text = "Ação 6".to_string(),
+                            on_click = Rc::new({
+                                let status_text = status_text.clone();
+                                move |_| status_text.set("Ação 6 executada!".to_string())
+                            })
+                        )
+                    }
+                }
+                
+                // Seção 4: HBoxLayout com botões principais
+                div(style = "border: 1px solid #ccc; padding: 15px; border-radius: 5px; background: #f9f9f9;") {
+                    h2(style = "margin-top: 0; color: #555;") { "Ações Principais" }
+                    
+                    HBoxLayout(spacing = 10, margin = 5, align = "center".to_string()) {
+                        PushButton(
+                            text = "Salvar".to_string(),
+                            on_click = Rc::new({
+                                let status_text = status_text.clone();
+                                let name = name.clone();
+                                move |_: MouseEvent| {
+                                    status_text.set(format!("Dados de {} salvos!", name.get_clone()))
+                                }
+                            })
+                        )
+                        
+                        PushButton(
+                            text = "Cancelar".to_string(),
+                            on_click = Rc::new({
+                                let status_text = status_text.clone();
+                                move |_| status_text.set("Operação cancelada".to_string())
+                            })
+                        )
+                        
+                        PushButton(
+                            text = "Limpar".to_string(),
+                            on_click = Rc::new({
+                                let name = name.clone();
+                                let email = email.clone();
+                                let age = age.clone();
+                                let status_text = status_text.clone();
+                                move |_| {
+                                    name.set(String::new());
+                                    email.set(String::new());
+                                    age.set(18);
+                                    status_text.set("Formulário limpo".to_string());
+                                }
+                            })
+                        )
+                    }
+                }
+                
+                // Barra de status
+                div(style = "padding: 10px; background: #e8e8e8; border-radius: 5px; border: 1px solid #ccc;") {
+                    RLabel(
+                        text = create_signal(format!("Status: {}", status_text.get_clone())),
+                        for_id = String::new()
+                    )
+                }
+                
+                // Resumo dos dados
+                div(style = "border: 1px solid #ccc; padding: 15px; border-radius: 5px; background: #f0f8ff;") {
+                    h2(style = "margin-top: 0; color: #555;") { "Resumo dos Dados" }
+                    
+                    VBoxLayout(spacing = 5, margin = 5) {
+                        RLabel(
+                            text = create_signal(format!("Nome: {}", name.get_clone())),
+                            for_id = String::new()
+                        )
+                        
+                        RLabel(
+                            text = create_signal(format!("E-mail: {}", email.get_clone())),
+                            for_id = String::new()
+                        )
+                        
+                        RLabel(
+                            text = create_signal(format!("Idade: {} anos", age.get())),
+                            for_id = String::new()
+                        )
+                        
+                        RLabel(
+                            text = create_signal(format!("Altura: {:.2} m", height.get())),
+                            for_id = String::new()
+                        )
+                        
+                        RLabel(
+                            text = create_signal(format!("Peso: {:.1} kg", weight.get())),
+                            for_id = String::new()
+                        )
+                        
+                        RLabel(
+                            text = create_signal(format!("IMC: {:.2}", weight.get() / (height.get() * height.get()))),
+                            for_id = String::new()
+                        )
+                        
+                        RLabel(
+                            text = create_signal(format!(
+                                "Nível: {}",
+                                if radio1.get() { "Iniciante" }
+                                else if radio2.get() { "Intermediário" }
+                                else if radio3.get() { "Avançado" }
+                                else { "Não selecionado" }
+                            )),
+                            for_id = String::new()
+                        )
+                    }
+                }
             }
-        ) {
-            (props.text)
         }
     }
 }
+
+
+
 
 
 // 1. Widgets Básicos (Controles Simples)
+
+
 #[derive(Props)] pub struct QToolButtonProps {}
 #[component] pub fn QToolButton(_: QToolButtonProps) -> View { view! {} }
 
 #[derive(Props)] pub struct QCheckBoxProps {}
 #[component] pub fn QCheckBox(_: QCheckBoxProps) -> View { view! {} }
 
-#[derive(Props)] pub struct QRadioButtonProps {}
-#[component] pub fn QRadioButton(_: QRadioButtonProps) -> View { view! {} }
-
-#[derive(Props)] pub struct QTextEditProps {}
-#[component] pub fn QTextEdit(_: QTextEditProps) -> View { view! {} }
-
 #[derive(Props)] pub struct QPlainTextEditProps {}
 #[component] pub fn QPlainTextEdit(_: QPlainTextEditProps) -> View { view! {} }
-
-#[derive(Props)] pub struct QSpinBoxProps {}
-#[component] pub fn QSpinBox(_: QSpinBoxProps) -> View { view! {} }
-
-#[derive(Props)] pub struct QDoubleSpinBoxProps {}
-#[component] pub fn QDoubleSpinBox(_: QDoubleSpinBoxProps) -> View { view! {} }
 
 #[derive(Props)] pub struct QDateEditProps {}
 #[component] pub fn QDateEdit(_: QDateEditProps) -> View { view! {} }
@@ -321,8 +418,8 @@ pub fn RLabel(props: RLabelProps) -> View {
 #[derive(Props)] pub struct QDialProps {}
 #[component] pub fn QDial(_: QDialProps) -> View { view! {} }
 
-#[derive(Props)] pub struct QSliderProps {}
-#[component] pub fn QSlider(_: QSliderProps) -> View { view! {} }
+// #[derive(Props)] pub struct QSliderProps {}
+// #[component] pub fn QSlider(_: QSliderProps) -> View { view! {} }
 
 #[derive(Props)] pub struct QScrollBarProps {}
 #[component] pub fn QScrollBar(_: QScrollBarProps) -> View { view! {} }
@@ -335,8 +432,7 @@ pub fn RLabel(props: RLabelProps) -> View {
 
 
 // 2. Widgets de Seleção
-#[derive(Props)] pub struct QComboBoxProps {}
-#[component] pub fn QComboBox(_: QComboBoxProps) -> View { view! {} }
+
 
 #[derive(Props)] pub struct QFontComboBoxProps {}
 #[component] pub fn QFontComboBox(_: QFontComboBoxProps) -> View { view! {} }
@@ -402,10 +498,6 @@ pub fn RLabel(props: RLabelProps) -> View {
 // Layouts (não visuais)
 
 pub struct QLayout;
-pub struct QHBoxLayout;
-pub struct QVBoxLayout;
-pub struct QGridLayout;
-pub struct QFormLayout;
 
 
 // 4. Menus, Barras e Ações

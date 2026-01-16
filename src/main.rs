@@ -1,3 +1,5 @@
+#[allow(unused)]
+
 mod app2;
 
 use app2::App;
